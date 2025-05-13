@@ -94,28 +94,3 @@ def data_process(y_old, preserved=0.8, changed=0.1, masked=0.1):
                 y_new[idx, new_label] = 1
     
     return y_new
-
-def rectify(X, y_label, y_pred):
-    """结果修正函数"""
-    with cp.cuda.Device(0):
-        X_gpu = cp.sparse.csr_matrix(X)
-        y_pred_gpu = cp.array(y_pred)
-        y_new = cp.array(y_pred.copy())
-        
-        # 获取需要修正的样本
-        labeled_mask = cp.array(y_label != -1).any(axis=1)
-        labeled_indices = cp.where(labeled_mask)[0]
-        
-        # 使用字典统计邻居标签
-        for i in labeled_indices:
-            row = X_gpu[int(i)]
-            if row.nnz > 0:
-                # 获取邻居标签并统计
-                neighbor_labels = y_pred_gpu[row.indices]
-                labels, counts = cp.unique(neighbor_labels, return_counts=True)
-                if len(counts) > 0:
-                    # 选择最频繁的标签
-                    max_idx = cp.argmax(counts)
-                    y_new[int(i)] = labels[max_idx]
-        
-        return cp.asnumpy(y_new) 
