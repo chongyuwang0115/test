@@ -1,8 +1,3 @@
-import cupy as cp
-import numpy as np
-from cupyx.scipy.sparse import csr_matrix as gpu_csr_matrix
-from scipy.sparse import csr_matrix
-
 def label_propagation(X, y_label, alpha=0.5, max_iter=1000, tol=1e-5, block_size=1000):
     """标签传播算法的优化 GPU 版本"""
     n_samples = X.shape[0]
